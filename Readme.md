@@ -15,6 +15,7 @@ A specialized image labeling tool designed for annotating Nepali license plates 
 - **Devanagari Input System**
   - Virtual keyboard with all Devanagari characters commonly found on Nepali plates
   - Includes characters: 
+  
             # Consonants (व्यंजन)
 
             "क", "ख", "ग", "घ", "ङ",
