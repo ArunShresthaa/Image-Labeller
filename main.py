@@ -64,6 +64,17 @@ class ImageLabeller:
             self.top_frame, text="0/0 images labeled")
         self.progress_label.grid(row=0, column=3, padx=20, pady=5)
 
+        # Jump to image feature
+        tk.Label(self.top_frame, text="Jump to:").grid(
+            row=0, column=4, padx=5, pady=5)
+        self.jump_var = tk.StringVar()
+        self.jump_entry = tk.Entry(
+            self.top_frame, textvariable=self.jump_var, width=5)
+        self.jump_entry.grid(row=0, column=5, padx=2, pady=5)
+        self.jump_button = tk.Button(
+            self.top_frame, text="Go", command=self.jump_to_image)
+        self.jump_button.grid(row=0, column=6, padx=5, pady=5)
+
         # Main frame widgets
         # Image display on the left
         self.image_frame = tk.Frame(
@@ -183,6 +194,8 @@ class ImageLabeller:
         self.prev_button["state"] = state
         self.next_button["state"] = state
         self.save_button["state"] = state
+        self.jump_button["state"] = state
+        self.jump_entry["state"] = state
 
     def browse_folder(self):
         """Open folder dialog and load images from selected folder"""
@@ -336,6 +349,33 @@ class ImageLabeller:
 
         self.progress_label.config(
             text=f"{labeled_count}/{len(self.image_files)} images labeled")
+
+    def jump_to_image(self):
+        """Jump to a specific image number"""
+        if not self.image_files:
+            return
+
+        try:
+            # Get the image number (1-based index)
+            image_num = int(self.jump_var.get())
+
+            # Validate the image number
+            if 1 <= image_num <= len(self.image_files):
+                # Save current label first
+                self.save_label()
+
+                # Jump to the specified image (convert to 0-based index)
+                self.current_image_index = image_num - 1
+                self.load_current_image()
+                self.jump_var.set("")  # Clear the entry
+            else:
+                messagebox.showwarning("Invalid Image Number",
+                                       f"Please enter a number between 1 and {len(self.image_files)}")
+        except ValueError:
+            messagebox.showwarning(
+                "Invalid Input", "Please enter a valid number")
+
+        self.jump_entry.focus_set()
 
 
 def main():
