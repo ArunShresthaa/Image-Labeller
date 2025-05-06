@@ -2,7 +2,7 @@
 
 A specialized image labeling tool designed for annotating Nepali license plates with Devanagari characters. The tool provides an intuitive interface with a built-in Devanagari virtual keyboard to make the labeling process efficient and user-friendly.
 
-![Nepali Number Plate Labeler Screenshot](images/screenshot.png)
+![Nepali Number Plate Labeler Screenshot](docs/images/screenshot.png)
 
 ## Features
 
@@ -14,7 +14,23 @@ A specialized image labeling tool designed for annotating Nepali license plates 
 
 - **Devanagari Input System**
   - Virtual keyboard with all Devanagari characters commonly found on Nepali plates
-  - Includes characters: क, को, ख, ग, च, ज, झ, ञ, ड, ित, न, प, प्र, ब, बा, भ, े, म, मे, य, ल, ु, स, ी, सु, से, ह, ०, १, २, ३, ४, ५, ६, ७, ८, ९
+  - Includes characters: 
+            # Consonants (व्यंजन)
+
+            "क", "ख", "ग", "घ", "ङ",
+            "च", "छ", "ज", "झ", "ञ",
+            "ट", "ठ", "ड", "ढ", "ण",
+            "त", "थ", "द", "ध", "न",
+            "प", "फ", "ब", "भ", "म",
+            "य", "र", "ल", "व",
+            "श", "ष", "स", "ह",
+            "क्ष", "त्र", "ज्ञ",
+
+            # Vowel Signs (मात्रा)
+            "ा", "ि", "ी", "ु", "ू", "ृ", "े", "ै", "ो", "ौ", "ं", "ः", '', '', '', '', '',
+
+            # Numbers (अंक)
+            "०", "१", "२", "३", "४", "५", "६", "७", "८", "९"
   - Utility buttons: Space, Backspace, Clear All
 
 - **Label Management**
@@ -45,8 +61,8 @@ A specialized image labeling tool designed for annotating Nepali license plates 
 
 2. Clone this repository or download the script:
    ```bash
-   git clone https://github.com/yourusername/nepali-plate-labeler.git
-   cd nepali-plate-labeler
+   git clone https://github.com/ArunShresthaa/Image-Labeller.git
+   cd Image-Labeller
    ```
 
 3. Install the required dependencies:
@@ -56,7 +72,7 @@ A specialized image labeling tool designed for annotating Nepali license plates 
 
 4. Run the application:
    ```bash
-   python nepali_plate_labeler.py
+   python main.py
    ```
 
 ## Usage Guide
@@ -65,7 +81,7 @@ A specialized image labeling tool designed for annotating Nepali license plates 
 
 1. Launch the application by running the script:
    ```bash
-   python nepali_plate_labeler.py
+   python main.py
    ```
 
 2. Click the "Browse" button to select a folder containing your Nepali license plate images.
