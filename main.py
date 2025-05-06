@@ -291,7 +291,7 @@ class ImageLabeller:
 
     def save_label(self):
         """Save the current label text to a file"""
-        if not self.image_files:
+        if not self.image_files or not self.label_text.get(1.0, tk.END).strip():
             return
 
         image_file = self.image_files[self.current_image_index]
