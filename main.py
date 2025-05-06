@@ -37,6 +37,8 @@ class ImageLabeller:
         self.image_files = []
         self.current_image_index = 0
         self.label_folder = "labels"
+        self.feedback_popup = None  # For notification popup
+        self.feedback_timer = None  # For tracking notification timeout
 
         # Create main frames
         self.top_frame = tk.Frame(root)
@@ -166,6 +168,54 @@ class ImageLabeller:
         # Disable buttons initially
         self.toggle_buttons(False)
 
+    def show_feedback(self, message, feedback_type="info"):
+        """Show a temporary notification popup with feedback"""
+        # Cancel any existing timer and destroy existing popup
+        if self.feedback_timer:
+            self.root.after_cancel(self.feedback_timer)
+        if self.feedback_popup and self.feedback_popup.winfo_exists():
+            self.feedback_popup.destroy()
+
+        # Configure colors based on feedback type
+        bg_colors = {
+            "success": "#4CAF50",  # Green
+            "error": "#F44336",    # Red
+            "warning": "#FF9800",  # Orange
+            "info": "#2196F3"      # Blue
+        }
+        bg_color = bg_colors.get(feedback_type, bg_colors["info"])
+
+        # Create popup window
+        self.feedback_popup = tk.Toplevel(self.root)
+        self.feedback_popup.overrideredirect(True)  # No window decorations
+
+        # Position at the bottom center of the main window
+        window_width = self.root.winfo_width()
+        x = self.root.winfo_x() + (window_width // 2) - 150  # Center horizontally
+        y = self.root.winfo_y() + self.root.winfo_height() - 100  # Bottom
+        self.feedback_popup.geometry(f"300x50+{x}+{y}")
+
+        # Create notification content
+        frame = tk.Frame(self.feedback_popup, bg=bg_color, padx=10, pady=10)
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        tk.Label(frame, text=message, bg=bg_color, fg="white",
+                 font=("Arial", 10, "bold"), wraplength=280).pack(fill=tk.BOTH, expand=True)
+
+        # Auto-close after 3 seconds
+        self.feedback_timer = self.root.after(3000, self.close_feedback)
+
+        # Make sure popup stays on top
+        self.feedback_popup.lift()
+        self.feedback_popup.attributes("-topmost", True)
+
+    def close_feedback(self):
+        """Close the feedback popup"""
+        if self.feedback_popup and self.feedback_popup.winfo_exists():
+            self.feedback_popup.destroy()
+        self.feedback_popup = None
+        self.feedback_timer = None
+
     def insert_char(self, char):
         """Insert a character at the cursor position in the text field"""
         self.label_text.insert(tk.INSERT, char)
@@ -291,7 +341,7 @@ class ImageLabeller:
 
     def save_label(self):
         """Save the current label text to a file"""
-        if not self.image_files or not self.label_text.get(1.0, tk.END).strip():
+        if not self.image_files:
             return
 
         image_file = self.image_files[self.current_image_index]
@@ -300,13 +350,36 @@ class ImageLabeller:
 
         label_content = self.label_text.get(1.0, tk.END).strip()
 
-        try:
-            with open(label_path, 'w', encoding='utf-8') as f:
-                f.write(label_content)
-            self.status_var.set(f"Status: Label saved for {image_file}")
-            self.update_progress_counter()
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to save label: {str(e)}")
+        # Only save if the label is not empty
+        if label_content:
+            try:
+                with open(label_path, 'w', encoding='utf-8') as f:
+                    f.write(label_content)
+                self.status_var.set(f"Status: Label saved for {image_file}")
+                self.update_progress_counter()
+                self.show_feedback("Label saved successfully!", "success")
+            except Exception as e:
+                error_msg = f"Failed to save label: {str(e)}"
+                messagebox.showerror("Error", error_msg)
+                self.show_feedback(error_msg, "error")
+        else:
+            # If the label is empty but a label file exists, ask if user wants to delete it
+            if os.path.exists(label_path):
+                if messagebox.askyesno("Empty Label",
+                                       f"The label for {image_file} is empty. Do you want to delete the existing label file?"):
+                    try:
+                        os.remove(label_path)
+                        self.status_var.set(
+                            f"Status: Deleted empty label for {image_file}")
+                        self.update_progress_counter()
+                        self.show_feedback("Empty label deleted", "warning")
+                    except Exception as e:
+                        error_msg = f"Failed to delete label: {str(e)}"
+                        messagebox.showerror("Error", error_msg)
+                        self.show_feedback(error_msg, "error")
+            else:
+                self.status_var.set(f"Status: No label saved (empty)")
+                self.show_feedback("No label saved (empty)", "warning")
 
     def next_image(self):
         """Navigate to the next image"""
