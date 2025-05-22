@@ -36,9 +36,27 @@ class ImageLabeller:
         self.folder_path = ""
         self.image_files = []
         self.current_image_index = 0
-        self.label_folder = "labels"
+        self.labels_dir = os.path.join("dataset", "labels")  # Changed to use dataset/labels
         self.feedback_popup = None  # For notification popup
         self.feedback_timer = None  # For tracking notification timeout
+
+        # Create labels directory if it doesn't exist
+        if not os.path.exists(self.labels_dir):
+            os.makedirs(self.labels_dir)
+
+        # Remove any existing labels folders from person directories
+        person_dirs = ['Aadish', 'Abhinas', 'Arun', 'Nashim', 'Roman']
+        for dir_name in person_dirs:
+            labels_path = os.path.join(dir_name, 'labels')
+            if os.path.exists(labels_path):
+                try:
+                    for file in os.listdir(labels_path):
+                        file_path = os.path.join(labels_path, file)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+                    os.rmdir(labels_path)
+                except Exception as e:
+                    print(f"Error removing labels from {dir_name}: {str(e)}")
 
         # Create main frames
         self.top_frame = tk.Frame(root)
@@ -256,11 +274,6 @@ class ImageLabeller:
         self.folder_path = folder_path
         self.folder_path_var.set(folder_path)
 
-        # Create labels folder if it doesn't exist
-        self.label_folder = os.path.join(self.folder_path, "labels")
-        if not os.path.exists(self.label_folder):
-            os.makedirs(self.label_folder)
-
         # Get all image files
         self.image_files = []
         for file in os.listdir(self.folder_path):
@@ -323,7 +336,7 @@ class ImageLabeller:
 
         # Load label if exists
         label_file = os.path.splitext(image_file)[0] + ".txt"
-        label_path = os.path.join(self.label_folder, label_file)
+        label_path = os.path.join(self.labels_dir, label_file)  # Use self.labels_dir
 
         # Clear the text widget
         self.label_text.delete(1.0, tk.END)
@@ -346,7 +359,7 @@ class ImageLabeller:
 
         image_file = self.image_files[self.current_image_index]
         label_file = os.path.splitext(image_file)[0] + ".txt"
-        label_path = os.path.join(self.label_folder, label_file)
+        label_path = os.path.join(self.labels_dir, label_file)  # Use self.labels_dir
 
         label_content = self.label_text.get(1.0, tk.END).strip()
 
@@ -416,7 +429,7 @@ class ImageLabeller:
         labeled_count = 0
         for img_file in self.image_files:
             label_file = os.path.splitext(img_file)[0] + ".txt"
-            label_path = os.path.join(self.label_folder, label_file)
+            label_path = os.path.join(self.labels_dir, label_file)  # Use self.labels_dir
             if os.path.exists(label_path):
                 labeled_count += 1
 
